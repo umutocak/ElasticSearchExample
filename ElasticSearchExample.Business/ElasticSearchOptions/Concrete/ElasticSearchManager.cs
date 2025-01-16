@@ -36,7 +36,20 @@ namespace ElasticSearchExample.Business.ElasticSearchOptions.Concrete
 
         public virtual async Task CreateIndexAsync<T, TKey>(string indexName) where T : ElasticEntity<TKey>
         {
-            //var exis = await elasticClient.IndexExistAsync(indexName);
+            var exis = await elasticClient.Indices.ExistsAsync(indexName);
+            if (exis.Exists)
+                return;
+            var newName = indexName + DateTime.Now.Ticks;
+            var result = await elasticClient.Indices.CreateAsync(newName, ss => ss.Index(newName).
+            Settings(o => o.NumberOfShards(4).
+            NumberOfReplicas(2).
+            Setting("max_result_window", int.MaxValue)));
+            if (result.Acknowledged)
+            {
+                await elasticClient.Indices.BulkAliasAsync(al => al.Add(add => add.Index(newName).Alias(indexName)));
+                return;
+            }
+            throw new ElasticSearchException($"Create index {indexName} failed: " + result.ServerError.Error.Reason);
         }
 
         public Task DeleteAsync<T, TKey>(string indexName, string typeName, T model) where T : ElasticEntity<TKey>
