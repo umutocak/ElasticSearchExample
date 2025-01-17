@@ -43,7 +43,12 @@ namespace ElasticSearchExample.Business.ElasticSearchOptions.Concrete
             var result = await elasticClient.Indices.CreateAsync(newName, ss => ss.Index(newName).
             Settings(o => o.NumberOfShards(4).
             NumberOfReplicas(2).
-            Setting("max_result_window", int.MaxValue)));
+            Setting("max_result_window", int.MaxValue)
+            .Analysis(a => a.TokenFilters(t => t.AsciiFolding("my_asci_folding", af => af.PreserveOriginal(true)))
+            .Analyzers(aa => aa.Custom("turkish_analyzer", tr => tr.Filters("lowercase", "my_ascii_folding").Tokenizer("standard")))
+            ))
+            .Mappings(m => m.Map<T>(mm => mm.AutoMap().Properties(p => p.Text(t => t.Name(n => n.SearchingArea).Analyzer("turkish_analyzer")))))
+            );
             if (result.Acknowledged)
             {
                 await elasticClient.Indices.BulkAliasAsync(al => al.Add(add => add.Index(newName).Alias(indexName)));

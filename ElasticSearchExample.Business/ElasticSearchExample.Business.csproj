@@ -14,11 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Abstract\" />
-    <Folder Include="Concrete\" />
-    <Folder Include="Consts\" />
-    <Folder Include="Mappings\" />
-    <Folder Include="ObjectDtos\" />
+    <Folder Include="Concrete\Auth\" />
+    <Folder Include="Concrete\Tags\" />
+    <Folder Include="Concrete\PostTags\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ElasticSearchExample.DataAccess\ElasticSearchExample.DataAccess.csproj" />
+    <ProjectReference Include="..\ElasticSearchExample.Entities\ElasticSearchExample.Entities.csproj" />
   </ItemGroup>
 
 </Project>
